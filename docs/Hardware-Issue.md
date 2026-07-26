@@ -72,6 +72,8 @@
 
 **회로 구조**
 ```
+<img width="1203" height="547" alt="image" src="https://github.com/user-attachments/assets/326dd433-7736-42b1-ad8e-839289b9ca6b" />
+
 ```
 
 | 부품 | 스펙 | 선정 근거 |
