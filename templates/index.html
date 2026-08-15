@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>스텔라보드 상대 위치</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: #f4f6f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            text-align: center;
+            width: 320px;
+        }
+        h2 {
+            font-size: 20px;
+            color: #111;
+            margin-bottom: 25px;
+        }
+        .icon-box {
+            background-color: #4a8bf5;
+            width: 120px;
+            height: 120px;
+            border-radius: 25px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 20px auto;
+            transition: transform 0.2s ease-out;
+        }
+        .arrow {
+            color: white;
+            font-size: 60px;
+            font-weight: bold;
+        }
+        .distance-text {
+            font-size: 22px;
+            font-weight: bold;
+            color: #222;
+            margin: 15px 0 5px 0;
+        }
+        .status-text {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 25px;
+        }
+        .btn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            width: 100%;
+        }
+        .btn:active {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>스텔라보드 상대 위치</h2>
+    
+    <div class="icon-box" id="arrow-box">
+        <div class="arrow">↑</div>
+    </div>
+
+    <div class="distance-text" id="distance-val">거리: - m</div>
+    <div class="status-text" id="status-text">버튼을 눌러 위치 추적을 시작하세요</div>
+
+    <button class="btn" id="start-btn" onclick="startTracking()">추적 시작하기</button>
+</div>
+
+<script>
+    const socket = io();
+    let isTracking = false;
+
+    socket.on('connect', () => {
+        console.log("✅ Socket.IO 연결 성공");
+    });
+
+    socket.on('uwb_response', (msg) => {
+        if (isTracking) {
+            let rawData = msg.data;
+            
+            // "UWB:" 또는 "UW:" 문자열 제거
+            rawData = rawData.replace('UWB:', '').replace('UW:', '');
+            
+            const coords = rawData.split(',');
+            if (coords.length >= 2) {
+                const x = parseFloat(coords[0]);
+                const y = parseFloat(coords[1]);
+                
+                if (!isNaN(x) && !isNaN(y)) {
+                    // 거리 계산 (m)
+                    const distanceMeter = (Math.sqrt(x * x + y * y) / 100).toFixed(2);
+                    
+                    // 각도 계산
+                    const angleRad = Math.atan2(x, y);
+                    const angleDeg = angleRad * (180 / Math.PI);
+                    
+                    document.getElementById('distance-val').innerText = `거리: ${distanceMeter} m`;
+                    
+                    const arrowBox = document.getElementById('arrow-box');
+                    arrowBox.style.transform = `rotate(${angleDeg}deg)`;
+                }
+            }
+        }
+    });
+
+    function startTracking() {
+        isTracking = true;
+        document.getElementById('status-text').innerText = "추적 중... 스텔라보드를 바라보세요!";
+        document.getElementById('start-btn').innerText = "추적 중";
+        document.getElementById('start-btn').style.backgroundColor = "#28a745";
+    }
+</script>
+
+</body>
+</html>
