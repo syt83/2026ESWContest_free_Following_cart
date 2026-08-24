@@ -1,0 +1,8 @@
+Metadata-Version: 2.1
+Name: cart-follow
+Version: 0.0.0
+Summary: UWB following and LiDAR obstacle avoidance cart
+Maintainer: pi
+Maintainer-email: 20225279@gs.cwnu.ac.kr
+License: Apache-2.0
+Provides-Extra: test
