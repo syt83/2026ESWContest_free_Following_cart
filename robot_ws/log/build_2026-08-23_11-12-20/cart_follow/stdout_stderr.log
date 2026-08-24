@@ -1,0 +1,35 @@
+running egg_info
+writing ../../build/cart_follow/cart_follow.egg-info/PKG-INFO
+writing dependency_links to ../../build/cart_follow/cart_follow.egg-info/dependency_links.txt
+writing entry points to ../../build/cart_follow/cart_follow.egg-info/entry_points.txt
+writing requirements to ../../build/cart_follow/cart_follow.egg-info/requires.txt
+writing top-level names to ../../build/cart_follow/cart_follow.egg-info/top_level.txt
+reading manifest file '../../build/cart_follow/cart_follow.egg-info/SOURCES.txt'
+writing manifest file '../../build/cart_follow/cart_follow.egg-info/SOURCES.txt'
+running build
+running build_py
+copying cart_follow/lidar_avoid.py -> /home/pi/robot_project/robot_ws/build/cart_follow/build/lib/cart_follow
+copying cart_follow/uwb_tracker.py -> /home/pi/robot_project/robot_ws/build/cart_follow/build/lib/cart_follow
+copying cart_follow/motor_serial.py -> /home/pi/robot_project/robot_ws/build/cart_follow/build/lib/cart_follow
+copying cart_follow/follow_controller.py -> /home/pi/robot_project/robot_ws/build/cart_follow/build/lib/cart_follow
+running install
+running install_lib
+copying /home/pi/robot_project/robot_ws/build/cart_follow/build/lib/cart_follow/lidar_avoid.py -> /home/pi/robot_project/robot_ws/install/cart_follow/lib/python3.12/site-packages/cart_follow
+copying /home/pi/robot_project/robot_ws/build/cart_follow/build/lib/cart_follow/uwb_tracker.py -> /home/pi/robot_project/robot_ws/install/cart_follow/lib/python3.12/site-packages/cart_follow
+copying /home/pi/robot_project/robot_ws/build/cart_follow/build/lib/cart_follow/motor_serial.py -> /home/pi/robot_project/robot_ws/install/cart_follow/lib/python3.12/site-packages/cart_follow
+copying /home/pi/robot_project/robot_ws/build/cart_follow/build/lib/cart_follow/follow_controller.py -> /home/pi/robot_project/robot_ws/install/cart_follow/lib/python3.12/site-packages/cart_follow
+byte-compiling /home/pi/robot_project/robot_ws/install/cart_follow/lib/python3.12/site-packages/cart_follow/lidar_avoid.py to lidar_avoid.cpython-312.pyc
+byte-compiling /home/pi/robot_project/robot_ws/install/cart_follow/lib/python3.12/site-packages/cart_follow/uwb_tracker.py to uwb_tracker.cpython-312.pyc
+byte-compiling /home/pi/robot_project/robot_ws/install/cart_follow/lib/python3.12/site-packages/cart_follow/motor_serial.py to motor_serial.cpython-312.pyc
+byte-compiling /home/pi/robot_project/robot_ws/install/cart_follow/lib/python3.12/site-packages/cart_follow/follow_controller.py to follow_controller.cpython-312.pyc
+running install_data
+copying package.xml -> /home/pi/robot_project/robot_ws/install/cart_follow/share/cart_follow
+running install_egg_info
+removing '/home/pi/robot_project/robot_ws/install/cart_follow/lib/python3.12/site-packages/cart_follow-0.0.0-py3.12.egg-info' (and everything under it)
+Copying ../../build/cart_follow/cart_follow.egg-info to /home/pi/robot_project/robot_ws/install/cart_follow/lib/python3.12/site-packages/cart_follow-0.0.0-py3.12.egg-info
+running install_scripts
+Installing follow_controller script to /home/pi/robot_project/robot_ws/install/cart_follow/lib/cart_follow
+Installing lidar_avoidance script to /home/pi/robot_project/robot_ws/install/cart_follow/lib/cart_follow
+Installing motor_serial script to /home/pi/robot_project/robot_ws/install/cart_follow/lib/cart_follow
+Installing uwb_tracker script to /home/pi/robot_project/robot_ws/install/cart_follow/lib/cart_follow
+writing list of installed files to '/home/pi/robot_project/robot_ws/build/cart_follow/install.log'

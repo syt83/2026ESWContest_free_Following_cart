@@ -1,0 +1,64 @@
+[0.000000] (-) TimerEvent: {}
+[0.000319] (-) JobUnselected: {'identifier': 'ydlidar_ros2_driver'}
+[0.000391] (cart_follow) JobQueued: {'identifier': 'cart_follow', 'dependencies': OrderedDict()}
+[0.000435] (cart_follow) JobStarted: {'identifier': 'cart_follow'}
+[0.093321] (-) TimerEvent: {}
+[0.197032] (-) TimerEvent: {}
+[0.297415] (-) TimerEvent: {}
+[0.397829] (-) TimerEvent: {}
+[0.498203] (-) TimerEvent: {}
+[0.598740] (-) TimerEvent: {}
+[0.699320] (-) TimerEvent: {}
+[0.799715] (-) TimerEvent: {}
+[0.900773] (-) TimerEvent: {}
+[1.002111] (-) TimerEvent: {}
+[1.102758] (-) TimerEvent: {}
+[1.203075] (-) TimerEvent: {}
+[1.303421] (-) TimerEvent: {}
+[1.403722] (-) TimerEvent: {}
+[1.504068] (-) TimerEvent: {}
+[1.605362] (-) TimerEvent: {}
+[1.705714] (-) TimerEvent: {}
+[1.807906] (-) TimerEvent: {}
+[1.908397] (-) TimerEvent: {}
+[2.014124] (-) TimerEvent: {}
+[2.114518] (-) TimerEvent: {}
+[2.214987] (-) TimerEvent: {}
+[2.315308] (-) TimerEvent: {}
+[2.415647] (-) TimerEvent: {}
+[2.515989] (-) TimerEvent: {}
+[2.616347] (-) TimerEvent: {}
+[2.697741] (cart_follow) Command: {'cmd': ['/usr/bin/python3', '-W', 'ignore:setup.py install is deprecated', '-W', 'ignore:easy_install command is deprecated', 'setup.py', 'develop', '--editable', '--build-directory', '/home/pi/robot_project/robot_ws/build/cart_follow/build', '--no-deps', 'symlink_data'], 'cwd': '/home/pi/robot_project/robot_ws/build/cart_follow', 'env': {'PYTHON_BASIC_REPL': '1', 'LESSOPEN': '| /usr/bin/lesspipe %s', 'USER': 'pi', 'SSH_CLIENT': '10.200.69.33 58428 22', 'XDG_SESSION_TYPE': 'tty', 'GIT_ASKPASS': '/home/pi/.vscode-server/cli/servers/Stable-110a328ea54b42367b803ec53ee0bf52ef26b419/server/extensions/git/dist/askpass.sh', 'SHLVL': '1', 'LD_LIBRARY_PATH': '/opt/ros/jazzy/opt/rviz_ogre_vendor/lib:/opt/ros/jazzy/lib/aarch64-linux-gnu:/opt/ros/jazzy/opt/gz_math_vendor/lib:/opt/ros/jazzy/opt/gz_utils_vendor/lib:/opt/ros/jazzy/opt/gz_cmake_vendor/lib:/opt/ros/jazzy/lib', 'BROWSER': '/home/pi/.vscode-server/cli/servers/Stable-110a328ea54b42367b803ec53ee0bf52ef26b419/server/bin/helpers/browser.sh', 'HOME': '/home/pi', 'OLDPWD': '/home/pi/robot_project', 'TERM_PROGRAM_VERSION': '1.134.0', 'VSCODE_IPC_HOOK_CLI': '/run/user/1000/vscode-ipc-0fe2e146-37d7-420e-a5ea-a53e6294fd29.sock', 'ROS_PYTHON_VERSION': '3', 'VSCODE_GIT_ASKPASS_MAIN': '/home/pi/.vscode-server/cli/servers/Stable-110a328ea54b42367b803ec53ee0bf52ef26b419/server/extensions/git/dist/askpass-main.js', 'VSCODE_GIT_ASKPASS_NODE': '/home/pi/.vscode-server/cli/servers/Stable-110a328ea54b42367b803ec53ee0bf52ef26b419/server/node', 'PYDEVD_DISABLE_FILE_VALIDATION': '1', 'BUNDLED_DEBUGPY_PATH': '/home/pi/.vscode-server/extensions/ms-python.debugpy-2026.6.0-linux-arm64/bundled/libs/debugpy', 'VSCODE_PYTHON_AUTOACTIVATE_GUARD': '1', 'DBUS_SESSION_BUS_ADDRESS': 'unix:path=/run/user/1000/bus', 'COLORTERM': 'truecolor', 'DEBUGINFOD_URLS': 'https://debuginfod.ubuntu.com', 'COLCON_PREFIX_PATH': '/home/pi/robot_project/robot_ws/install', 'ROS_DISTRO': 'jazzy', 'LOGNAME': 'pi', '_': '/usr/bin/colcon', 'ROS_VERSION': '2', 'XDG_SESSION_CLASS': 'user', 'TERM': 'xterm-256color', 'XDG_SESSION_ID': '3', 'PATH': '/home/pi/.vscode-server/cli/servers/Stable-110a328ea54b42367b803ec53ee0bf52ef26b419/server/bin/remote-cli:/opt/ros/jazzy/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/home/pi/.vscode-server/extensions/ms-python.debugpy-2026.6.0-linux-arm64/bundled/scripts/noConfigScripts', 'XDG_RUNTIME_DIR': '/run/user/1000', 'VSCODE_DEBUGPY_ADAPTER_ENDPOINTS': '/home/pi/.vscode-server/extensions/ms-python.debugpy-2026.6.0-linux-arm64/.noConfigDebugAdapterEndpoints/endpoint-665b017b1f7a25fb.txt', 'LANG': 'en_US.UTF-8', 'PYTHONSTARTUP': '/home/pi/.vscode-server/data/User/workspaceStorage/bc0ef29c566a8b5df749bb45238b3140/ms-python.python/pythonrc.py', 'LS_COLORS': 'rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=00:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.avif=01;35:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.webp=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:*~=00;90:*#=00;90:*.bak=00;90:*.crdownload=00;90:*.dpkg-dist=00;90:*.dpkg-new=00;90:*.dpkg-old=00;90:*.dpkg-tmp=00;90:*.old=00;90:*.orig=00;90:*.part=00;90:*.rej=00;90:*.rpmnew=00;90:*.rpmorig=00;90:*.rpmsave=00;90:*.swp=00;90:*.tmp=00;90:*.ucf-dist=00;90:*.ucf-new=00;90:*.ucf-old=00;90:', 'VSCODE_GIT_IPC_HANDLE': '/run/user/1000/vscode-git-c61f3c2aaa.sock', 'TERM_PROGRAM': 'vscode', 'AMENT_PREFIX_PATH': '/home/pi/robot_project/robot_ws/install/ydlidar_ros2_driver:/home/pi/robot_project/robot_ws/install/cart_follow:/opt/ros/jazzy', 'SHELL': '/bin/bash', 'LESSCLOSE': '/usr/bin/lesspipe %s %s', 'ROS_AUTOMATIC_DISCOVERY_RANGE': 'SUBNET', 'VSCODE_GIT_ASKPASS_EXTRA_ARGS': '', 'PWD': '/home/pi/robot_project/robot_ws/build/cart_follow', 'LC_ALL': 'en_US.UTF-8', 'SSH_CONNECTION': '10.200.69.33 58428 10.200.109.62 22', 'XDG_DATA_DIRS': '/usr/share/gnome:/usr/local/share:/usr/share:/var/lib/snapd/desktop', 'PYTHONPATH': '/home/pi/robot_project/robot_ws/build/cart_follow/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/pi/robot_project/robot_ws/install/cart_follow/lib/python3.12/site-packages:/home/pi/robot_project/robot_ws/build/cart_follow:/home/pi/robot_project/robot_ws/install/cart_follow/lib/python3.12/site-packages:/opt/ros/jazzy/lib/python3.12/site-packages', 'COLCON': '1', 'CMAKE_PREFIX_PATH': '/home/pi/robot_project/robot_ws/install/ydlidar_ros2_driver:/opt/ros/jazzy/opt/gz_math_vendor:/opt/ros/jazzy/opt/gz_utils_vendor:/opt/ros/jazzy/opt/gz_cmake_vendor'}, 'shell': False}
+[2.716448] (-) TimerEvent: {}
+[2.816824] (-) TimerEvent: {}
+[2.917161] (-) TimerEvent: {}
+[3.017501] (-) TimerEvent: {}
+[3.117864] (-) TimerEvent: {}
+[3.201758] (cart_follow) StdoutLine: {'line': b'running develop\n'}
+[3.217977] (-) TimerEvent: {}
+[3.318304] (-) TimerEvent: {}
+[3.418653] (-) TimerEvent: {}
+[3.501571] (cart_follow) StdoutLine: {'line': b'running egg_info\n'}
+[3.518756] (-) TimerEvent: {}
+[3.526285] (cart_follow) StdoutLine: {'line': b'writing cart_follow.egg-info/PKG-INFO\n'}
+[3.526890] (cart_follow) StdoutLine: {'line': b'writing dependency_links to cart_follow.egg-info/dependency_links.txt\n'}
+[3.527995] (cart_follow) StdoutLine: {'line': b'writing entry points to cart_follow.egg-info/entry_points.txt\n'}
+[3.528600] (cart_follow) StdoutLine: {'line': b'writing requirements to cart_follow.egg-info/requires.txt\n'}
+[3.529305] (cart_follow) StdoutLine: {'line': b'writing top-level names to cart_follow.egg-info/top_level.txt\n'}
+[3.608234] (cart_follow) StdoutLine: {'line': b"reading manifest file 'cart_follow.egg-info/SOURCES.txt'\n"}
+[3.611590] (cart_follow) StdoutLine: {'line': b"writing manifest file 'cart_follow.egg-info/SOURCES.txt'\n"}
+[3.619875] (-) TimerEvent: {}
+[3.642584] (cart_follow) StdoutLine: {'line': b'running build_ext\n'}
+[3.643069] (cart_follow) StdoutLine: {'line': b'Creating /home/pi/robot_project/robot_ws/install/cart_follow/lib/python3.12/site-packages/cart-follow.egg-link (link to .)\n'}
+[3.644321] (cart_follow) StdoutLine: {'line': b'Installing follow_controller script to /home/pi/robot_project/robot_ws/install/cart_follow/lib/cart_follow\n'}
+[3.644989] (cart_follow) StdoutLine: {'line': b'Installing imu_node script to /home/pi/robot_project/robot_ws/install/cart_follow/lib/cart_follow\n'}
+[3.645337] (cart_follow) StdoutLine: {'line': b'Installing lidar_avoidance script to /home/pi/robot_project/robot_ws/install/cart_follow/lib/cart_follow\n'}
+[3.645489] (cart_follow) StdoutLine: {'line': b'Installing motor_serial script to /home/pi/robot_project/robot_ws/install/cart_follow/lib/cart_follow\n'}
+[3.646527] (cart_follow) StdoutLine: {'line': b'Installing uwb_tracker script to /home/pi/robot_project/robot_ws/install/cart_follow/lib/cart_follow\n'}
+[3.646706] (cart_follow) StdoutLine: {'line': b'\n'}
+[3.646851] (cart_follow) StdoutLine: {'line': b'Installed /home/pi/robot_project/robot_ws/build/cart_follow\n'}
+[3.646981] (cart_follow) StdoutLine: {'line': b'running symlink_data\n'}
+[3.720017] (-) TimerEvent: {}
+[3.771632] (cart_follow) CommandEnded: {'returncode': 0}
+[3.804334] (cart_follow) JobEnded: {'identifier': 'cart_follow', 'rc': 0}
+[3.805584] (-) EventReactorShutdown: {}

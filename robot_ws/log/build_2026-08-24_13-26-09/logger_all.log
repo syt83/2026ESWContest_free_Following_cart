@@ -1,0 +1,141 @@
+[0.289s] DEBUG:colcon:Command line arguments: ['/usr/bin/colcon', 'build', '--packages-select', 'cart_follow', '--symlink-install']
+[0.290s] DEBUG:colcon:Parsed command line arguments: Namespace(log_base=None, log_level=None, verb_name='build', build_base='build', install_base='install', merge_install=False, symlink_install=True, test_result_base=None, continue_on_error=False, executor='parallel', parallel_workers=4, event_handlers=None, ignore_user_meta=False, metas=['./colcon.meta'], base_paths=['.'], packages_ignore=None, packages_ignore_regex=None, paths=None, packages_up_to=None, packages_up_to_regex=None, packages_above=None, packages_above_and_dependencies=None, packages_above_depth=None, packages_select_by_dep=None, packages_skip_by_dep=None, packages_skip_up_to=None, packages_select_build_failed=False, packages_skip_build_finished=False, packages_select_test_failures=False, packages_skip_test_passed=False, packages_select=['cart_follow'], packages_skip=None, packages_select_regex=None, packages_skip_regex=None, packages_start=None, packages_end=None, allow_overriding=[], cmake_args=None, cmake_target=None, cmake_target_skip_unavailable=False, cmake_clean_cache=False, cmake_clean_first=False, cmake_force_configure=False, ament_cmake_args=None, catkin_cmake_args=None, catkin_skip_building_tests=False, verb_parser=<colcon_defaults.argument_parser.defaults.DefaultArgumentsDecorator object at 0xffff8a3c5550>, verb_extension=<colcon_core.verb.build.BuildVerb object at 0xffff8a7187d0>, main=<bound method BuildVerb.main of <colcon_core.verb.build.BuildVerb object at 0xffff8a7187d0>>)
+[0.410s] Level 1:colcon.colcon_core.package_discovery:discover_packages(colcon_meta) check parameters
+[0.410s] Level 1:colcon.colcon_core.package_discovery:discover_packages(recursive) check parameters
+[0.410s] Level 1:colcon.colcon_core.package_discovery:discover_packages(ignore) check parameters
+[0.410s] Level 1:colcon.colcon_core.package_discovery:discover_packages(path) check parameters
+[0.410s] Level 1:colcon.colcon_core.package_discovery:discover_packages(colcon_meta) discover
+[0.410s] Level 1:colcon.colcon_core.package_discovery:discover_packages(recursive) discover
+[0.410s] INFO:colcon.colcon_core.package_discovery:Crawling recursively for packages in '/home/pi/robot_project/robot_ws'
+[0.411s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['ignore', 'ignore_ament_install']
+[0.411s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'ignore'
+[0.411s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'ignore_ament_install'
+[0.411s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['colcon_pkg']
+[0.411s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'colcon_pkg'
+[0.411s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['colcon_meta']
+[0.411s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'colcon_meta'
+[0.411s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['ros']
+[0.411s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'ros'
+[0.466s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['cmake', 'python']
+[0.466s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'cmake'
+[0.466s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'python'
+[0.466s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['python_setup_py']
+[0.466s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'python_setup_py'
+[0.466s] Level 1:colcon.colcon_core.package_identification:_identify(build) by extensions ['ignore', 'ignore_ament_install']
+[0.466s] Level 1:colcon.colcon_core.package_identification:_identify(build) by extension 'ignore'
+[0.466s] Level 1:colcon.colcon_core.package_identification:_identify(build) ignored
+[0.466s] Level 1:colcon.colcon_core.package_identification:_identify(install) by extensions ['ignore', 'ignore_ament_install']
+[0.466s] Level 1:colcon.colcon_core.package_identification:_identify(install) by extension 'ignore'
+[0.467s] Level 1:colcon.colcon_core.package_identification:_identify(install) ignored
+[0.467s] Level 1:colcon.colcon_core.package_identification:_identify(log) by extensions ['ignore', 'ignore_ament_install']
+[0.467s] Level 1:colcon.colcon_core.package_identification:_identify(log) by extension 'ignore'
+[0.467s] Level 1:colcon.colcon_core.package_identification:_identify(log) ignored
+[0.467s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extensions ['ignore', 'ignore_ament_install']
+[0.467s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'ignore'
+[0.467s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'ignore_ament_install'
+[0.467s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extensions ['colcon_pkg']
+[0.467s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'colcon_pkg'
+[0.467s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extensions ['colcon_meta']
+[0.467s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'colcon_meta'
+[0.467s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extensions ['ros']
+[0.467s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'ros'
+[0.468s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extensions ['cmake', 'python']
+[0.468s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'cmake'
+[0.468s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'python'
+[0.468s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extensions ['python_setup_py']
+[0.468s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'python_setup_py'
+[0.468s] Level 1:colcon.colcon_core.package_identification:_identify(src/cart_follow) by extensions ['ignore', 'ignore_ament_install']
+[0.468s] Level 1:colcon.colcon_core.package_identification:_identify(src/cart_follow) by extension 'ignore'
+[0.468s] Level 1:colcon.colcon_core.package_identification:_identify(src/cart_follow) by extension 'ignore_ament_install'
+[0.468s] Level 1:colcon.colcon_core.package_identification:_identify(src/cart_follow) by extensions ['colcon_pkg']
+[0.468s] Level 1:colcon.colcon_core.package_identification:_identify(src/cart_follow) by extension 'colcon_pkg'
+[0.468s] Level 1:colcon.colcon_core.package_identification:_identify(src/cart_follow) by extensions ['colcon_meta']
+[0.468s] Level 1:colcon.colcon_core.package_identification:_identify(src/cart_follow) by extension 'colcon_meta'
+[0.468s] Level 1:colcon.colcon_core.package_identification:_identify(src/cart_follow) by extensions ['ros']
+[0.468s] Level 1:colcon.colcon_core.package_identification:_identify(src/cart_follow) by extension 'ros'
+[0.476s] DEBUG:colcon.colcon_core.package_identification:Package 'src/cart_follow' with type 'ros.ament_python' and name 'cart_follow'
+[0.476s] Level 1:colcon.colcon_core.package_identification:_identify(src/ydlidar_ros2_driver_jazzy) by extensions ['ignore', 'ignore_ament_install']
+[0.476s] Level 1:colcon.colcon_core.package_identification:_identify(src/ydlidar_ros2_driver_jazzy) by extension 'ignore'
+[0.476s] Level 1:colcon.colcon_core.package_identification:_identify(src/ydlidar_ros2_driver_jazzy) by extension 'ignore_ament_install'
+[0.476s] Level 1:colcon.colcon_core.package_identification:_identify(src/ydlidar_ros2_driver_jazzy) by extensions ['colcon_pkg']
+[0.476s] Level 1:colcon.colcon_core.package_identification:_identify(src/ydlidar_ros2_driver_jazzy) by extension 'colcon_pkg'
+[0.476s] Level 1:colcon.colcon_core.package_identification:_identify(src/ydlidar_ros2_driver_jazzy) by extensions ['colcon_meta']
+[0.476s] Level 1:colcon.colcon_core.package_identification:_identify(src/ydlidar_ros2_driver_jazzy) by extension 'colcon_meta'
+[0.476s] Level 1:colcon.colcon_core.package_identification:_identify(src/ydlidar_ros2_driver_jazzy) by extensions ['ros']
+[0.477s] Level 1:colcon.colcon_core.package_identification:_identify(src/ydlidar_ros2_driver_jazzy) by extension 'ros'
+[0.478s] DEBUG:colcon.colcon_core.package_identification:Package 'src/ydlidar_ros2_driver_jazzy' with type 'ros.ament_cmake' and name 'ydlidar_ros2_driver'
+[0.478s] Level 1:colcon.colcon_core.package_discovery:discover_packages(recursive) using defaults
+[0.478s] Level 1:colcon.colcon_core.package_discovery:discover_packages(ignore) discover
+[0.478s] Level 1:colcon.colcon_core.package_discovery:discover_packages(ignore) using defaults
+[0.478s] Level 1:colcon.colcon_core.package_discovery:discover_packages(path) discover
+[0.478s] Level 1:colcon.colcon_core.package_discovery:discover_packages(path) using defaults
+[0.517s] INFO:colcon.colcon_core.package_selection:Skipping not selected package 'ydlidar_ros2_driver' in 'src/ydlidar_ros2_driver_jazzy'
+[0.518s] Level 1:colcon.colcon_core.package_discovery:discover_packages(prefix_path) check parameters
+[0.518s] Level 1:colcon.colcon_core.package_discovery:discover_packages(prefix_path) discover
+[0.523s] DEBUG:colcon.colcon_installed_package_information.package_discovery:Found 2 installed packages in /home/pi/robot_project/robot_ws/install
+[0.526s] DEBUG:colcon.colcon_installed_package_information.package_discovery:Found 287 installed packages in /opt/ros/jazzy
+[0.527s] Level 1:colcon.colcon_core.package_discovery:discover_packages(prefix_path) using defaults
+[0.592s] Level 5:colcon.colcon_core.verb:set package 'cart_follow' build argument 'cmake_args' from command line to 'None'
+[0.592s] Level 5:colcon.colcon_core.verb:set package 'cart_follow' build argument 'cmake_target' from command line to 'None'
+[0.592s] Level 5:colcon.colcon_core.verb:set package 'cart_follow' build argument 'cmake_target_skip_unavailable' from command line to 'False'
+[0.592s] Level 5:colcon.colcon_core.verb:set package 'cart_follow' build argument 'cmake_clean_cache' from command line to 'False'
+[0.592s] Level 5:colcon.colcon_core.verb:set package 'cart_follow' build argument 'cmake_clean_first' from command line to 'False'
+[0.592s] Level 5:colcon.colcon_core.verb:set package 'cart_follow' build argument 'cmake_force_configure' from command line to 'False'
+[0.592s] Level 5:colcon.colcon_core.verb:set package 'cart_follow' build argument 'ament_cmake_args' from command line to 'None'
+[0.592s] Level 5:colcon.colcon_core.verb:set package 'cart_follow' build argument 'catkin_cmake_args' from command line to 'None'
+[0.592s] Level 5:colcon.colcon_core.verb:set package 'cart_follow' build argument 'catkin_skip_building_tests' from command line to 'False'
+[0.592s] DEBUG:colcon.colcon_core.verb:Building package 'cart_follow' with the following arguments: {'ament_cmake_args': None, 'build_base': '/home/pi/robot_project/robot_ws/build/cart_follow', 'catkin_cmake_args': None, 'catkin_skip_building_tests': False, 'cmake_args': None, 'cmake_clean_cache': False, 'cmake_clean_first': False, 'cmake_force_configure': False, 'cmake_target': None, 'cmake_target_skip_unavailable': False, 'install_base': '/home/pi/robot_project/robot_ws/install/cart_follow', 'merge_install': False, 'path': '/home/pi/robot_project/robot_ws/src/cart_follow', 'symlink_install': True, 'test_result_base': None}
+[0.592s] INFO:colcon.colcon_core.executor:Executing jobs using 'parallel' executor
+[0.594s] DEBUG:colcon.colcon_parallel_executor.executor.parallel:run_until_complete
+[0.594s] INFO:colcon.colcon_ros.task.ament_python.build:Building ROS package in '/home/pi/robot_project/robot_ws/src/cart_follow' with build type 'ament_python'
+[0.594s] Level 1:colcon.colcon_core.shell:create_environment_hook('cart_follow', 'ament_prefix_path')
+[0.603s] INFO:colcon.colcon_core.plugin_system:Skipping extension 'colcon_core.shell.bat': Not used on non-Windows systems
+[0.603s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/pi/robot_project/robot_ws/install/cart_follow/share/cart_follow/hook/ament_prefix_path.ps1'
+[0.605s] INFO:colcon.colcon_core.shell:Creating environment descriptor '/home/pi/robot_project/robot_ws/install/cart_follow/share/cart_follow/hook/ament_prefix_path.dsv'
+[0.607s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/pi/robot_project/robot_ws/install/cart_follow/share/cart_follow/hook/ament_prefix_path.sh'
+[0.609s] INFO:colcon.colcon_core.shell:Skip shell extension 'powershell' for command environment: Not usable outside of PowerShell
+[0.609s] DEBUG:colcon.colcon_core.shell:Skip shell extension 'dsv' for command environment
+[0.945s] INFO:colcon.colcon_core.task.python.build:Building Python package in '/home/pi/robot_project/robot_ws/src/cart_follow'
+[0.945s] INFO:colcon.colcon_core.shell:Skip shell extension 'powershell' for command environment: Not usable outside of PowerShell
+[0.945s] DEBUG:colcon.colcon_core.shell:Skip shell extension 'dsv' for command environment
+[2.211s] DEBUG:colcon.colcon_core.task.python.build:Available setuptools commands: init_catalog, upload_docs, register, setopt, easy_install, build_clib, bdist_dumb, alias, build_scripts, install, check, bdist_wheel, install_scripts, build_py, compile_catalog, bdist_rpm, editable_wheel, install_egg_info, install_lib, bdist, saveopts, bdist_egg, symlink_data, extract_messages, install_headers, build_ext, rotate, sdist, clean, egg_info, develop, dist_info, build, test, update_catalog, install_data, upload
+[2.686s] DEBUG:colcon.colcon_core.task.python.build:Available setuptools 'develop' options: --no-user-cfg, --index-url, --verbose, --install-dir, --help, --dry-run, --local-snapshots-ok, --optimize, --upgrade, --version, --record, --find-links, --install-layout, --no-deps, --no-find-links, --build-directory, --site-dirs, --uninstall, --egg-path, --script-dir, --force-installation-into-system-dir, --exclude-scripts, --editable, --quiet, --allow-hosts, --always-copy, --multi-version, --prefix, --user, --always-unzip, --zip-ok
+[2.687s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoking command in '/home/pi/robot_project/robot_ws/build/cart_follow': DEBUGINFOD_URLS=https://debuginfod.ubuntu.com PYTHONPATH=/home/pi/robot_project/robot_ws/build/cart_follow/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/pi/robot_project/robot_ws/install/cart_follow/lib/python3.12/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --editable --build-directory /home/pi/robot_project/robot_ws/build/cart_follow/build --no-deps symlink_data
+[3.579s] Level 1:colcon.colcon_core.shell:create_environment_hook('cart_follow', 'pythonpath_develop')
+[3.580s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/pi/robot_project/robot_ws/build/cart_follow/share/cart_follow/hook/pythonpath_develop.ps1'
+[3.580s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoked command in '/home/pi/robot_project/robot_ws/build/cart_follow' returned '0': DEBUGINFOD_URLS=https://debuginfod.ubuntu.com PYTHONPATH=/home/pi/robot_project/robot_ws/build/cart_follow/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/pi/robot_project/robot_ws/install/cart_follow/lib/python3.12/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --editable --build-directory /home/pi/robot_project/robot_ws/build/cart_follow/build --no-deps symlink_data
+[3.581s] INFO:colcon.colcon_core.shell:Creating environment descriptor '/home/pi/robot_project/robot_ws/build/cart_follow/share/cart_follow/hook/pythonpath_develop.dsv'
+[3.582s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/pi/robot_project/robot_ws/build/cart_follow/share/cart_follow/hook/pythonpath_develop.sh'
+[3.593s] Level 1:colcon.colcon_core.environment:checking '/home/pi/robot_project/robot_ws/install/cart_follow' for CMake module files
+[3.594s] Level 1:colcon.colcon_core.environment:checking '/home/pi/robot_project/robot_ws/install/cart_follow' for CMake config files
+[3.595s] Level 1:colcon.colcon_core.environment:checking '/home/pi/robot_project/robot_ws/install/cart_follow/lib'
+[3.595s] Level 1:colcon.colcon_core.environment:checking '/home/pi/robot_project/robot_ws/install/cart_follow/bin'
+[3.595s] Level 1:colcon.colcon_core.environment:checking '/home/pi/robot_project/robot_ws/install/cart_follow/lib/pkgconfig/cart_follow.pc'
+[3.596s] Level 1:colcon.colcon_core.environment:checking '/home/pi/robot_project/robot_ws/install/cart_follow/lib/python3.12/site-packages'
+[3.596s] Level 1:colcon.colcon_core.shell:create_environment_hook('cart_follow', 'pythonpath')
+[3.596s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/pi/robot_project/robot_ws/install/cart_follow/share/cart_follow/hook/pythonpath.ps1'
+[3.597s] INFO:colcon.colcon_core.shell:Creating environment descriptor '/home/pi/robot_project/robot_ws/install/cart_follow/share/cart_follow/hook/pythonpath.dsv'
+[3.598s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/pi/robot_project/robot_ws/install/cart_follow/share/cart_follow/hook/pythonpath.sh'
+[3.599s] Level 1:colcon.colcon_core.environment:checking '/home/pi/robot_project/robot_ws/install/cart_follow/bin'
+[3.599s] Level 1:colcon.colcon_core.environment:create_environment_scripts_only(cart_follow)
+[3.600s] INFO:colcon.colcon_core.shell:Creating package script '/home/pi/robot_project/robot_ws/install/cart_follow/share/cart_follow/package.ps1'
+[3.602s] INFO:colcon.colcon_core.shell:Creating package descriptor '/home/pi/robot_project/robot_ws/install/cart_follow/share/cart_follow/package.dsv'
+[3.604s] INFO:colcon.colcon_core.shell:Creating package script '/home/pi/robot_project/robot_ws/install/cart_follow/share/cart_follow/package.sh'
+[3.606s] INFO:colcon.colcon_core.shell:Creating package script '/home/pi/robot_project/robot_ws/install/cart_follow/share/cart_follow/package.bash'
+[3.609s] INFO:colcon.colcon_core.shell:Creating package script '/home/pi/robot_project/robot_ws/install/cart_follow/share/cart_follow/package.zsh'
+[3.611s] Level 1:colcon.colcon_core.environment:create_file_with_runtime_dependencies(/home/pi/robot_project/robot_ws/install/cart_follow/share/colcon-core/packages/cart_follow)
+[3.612s] DEBUG:colcon.colcon_parallel_executor.executor.parallel:closing loop
+[3.613s] DEBUG:colcon.colcon_parallel_executor.executor.parallel:loop closed
+[3.613s] DEBUG:colcon.colcon_parallel_executor.executor.parallel:run_until_complete finished with '0'
+[3.613s] DEBUG:colcon.colcon_core.event_reactor:joining thread
+[3.613s] DEBUG:colcon.colcon_core.event_reactor:joined thread
+[3.614s] INFO:colcon.colcon_core.shell:Creating prefix script '/home/pi/robot_project/robot_ws/install/local_setup.ps1'
+[3.615s] INFO:colcon.colcon_core.shell:Creating prefix util module '/home/pi/robot_project/robot_ws/install/_local_setup_util_ps1.py'
+[3.618s] INFO:colcon.colcon_core.shell:Creating prefix chain script '/home/pi/robot_project/robot_ws/install/setup.ps1'
+[3.621s] INFO:colcon.colcon_core.shell:Creating prefix script '/home/pi/robot_project/robot_ws/install/local_setup.sh'
+[3.623s] INFO:colcon.colcon_core.shell:Creating prefix util module '/home/pi/robot_project/robot_ws/install/_local_setup_util_sh.py'
+[3.625s] INFO:colcon.colcon_core.shell:Creating prefix chain script '/home/pi/robot_project/robot_ws/install/setup.sh'
+[3.627s] INFO:colcon.colcon_core.shell:Creating prefix script '/home/pi/robot_project/robot_ws/install/local_setup.bash'
+[3.629s] INFO:colcon.colcon_core.shell:Creating prefix chain script '/home/pi/robot_project/robot_ws/install/setup.bash'
+[3.631s] INFO:colcon.colcon_core.shell:Creating prefix script '/home/pi/robot_project/robot_ws/install/local_setup.zsh'
+[3.633s] INFO:colcon.colcon_core.shell:Creating prefix chain script '/home/pi/robot_project/robot_ws/install/setup.zsh'

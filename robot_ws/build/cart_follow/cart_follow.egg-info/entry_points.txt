@@ -1,0 +1,6 @@
+[console_scripts]
+follow_controller = cart_follow.follow_controller:main
+imu_node = cart_follow.imu_node:main
+lidar_avoidance = cart_follow.lidar_avoidance:main
+motor_serial = cart_follow.motor_serial:main
+uwb_tracker = cart_follow.uwb_tracker:main
