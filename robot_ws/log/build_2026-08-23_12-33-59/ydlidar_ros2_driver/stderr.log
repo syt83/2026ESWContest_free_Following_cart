@@ -1,4 +1,0 @@
-[01m[K/home/pi/robot_project/robot_ws/src/ydlidar_ros2_driver_jazzy/src/ydlidar_ros2_driver_node.cpp:[m[K In function ‘[01m[Kint[01;32m[K main[m[K(int, char**)[m[K’:
-[01m[K/home/pi/robot_project/robot_ws/src/ydlidar_ros2_driver_jazzy/src/ydlidar_ros2_driver_node.cpp:132:8:[m[K [01;35m[Kwarning: [m[Kunused variable ‘[01m[Kinvalid_range_is_inf[m[K’ [[01;35m[K]8;;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#index-Wunused-variable-Wunused-variable]8;;[m[K]
-  132 |   bool [01;35m[Kinvalid_range_is_inf[m[K = node->declare_parameter<bool>("invalid_range_is_inf", false);
-      |        [01;35m[K^~~~~~~~~~~~~~~~~~~~[m[K
