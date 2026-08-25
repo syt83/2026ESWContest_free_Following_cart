@@ -17,22 +17,29 @@ class FollowController(Node):
 
     def __init__(self):
 
-        super().__init__('follow_controller')
+        super().__init__(
+            'follow_controller'
+        )
 
         # =========================================================
         # 사용자 거리
+        # 단위: cm
         # =========================================================
 
-        self.STOP_DISTANCE = 80.0
-        self.RESTART_DISTANCE = 90.0
+        # 130cm 이하 -> 정지
+        self.STOP_DISTANCE = 130.0
 
-        self.SLOW_DISTANCE = 130.0
-        self.NORMAL_DISTANCE = 220.0
+        # 145cm 이상 -> 다시 추종 시작
+        self.RESTART_DISTANCE = 145.0
+
+        # 감속 영역
+        self.SLOW_DISTANCE = 170.0
+        self.NORMAL_DISTANCE = 250.0
 
         self.MAX_TRACK_DISTANCE = 600.0
 
         # =========================================================
-        # Speed
+        # Forward speed
         # =========================================================
 
         self.SLOW_SPEED = 38.0
@@ -40,17 +47,19 @@ class FollowController(Node):
         self.MAX_SPEED = 85.0
 
         # =========================================================
-        # UWB
+        # UWB steering
         # =========================================================
 
-        self.K_UWB = 0.28
+        self.K_UWB = 0.35
 
         self.MAX_UWB_TURN = 22.0
 
+        # + error -> RIGHT
+        # - error -> LEFT
         self.UWB_SIGN = 1.0
 
         # =========================================================
-        # UWB Filter
+        # UWB filter
         # =========================================================
 
         self.UWB_MEDIAN_SIZE = 5
@@ -59,7 +68,7 @@ class FollowController(Node):
             maxlen=self.UWB_MEDIAN_SIZE
         )
 
-        self.UWB_ALPHA = 0.4
+        self.UWB_ALPHA = 0.40
 
         self.UWB_DEADBAND = 5.0
 
@@ -80,7 +89,7 @@ class FollowController(Node):
         self.MAX_TOTAL_TURN = 55.0
 
         # =========================================================
-        # 회피 중 UWB 영향
+        # 회피 상태별 UWB 영향
         # =========================================================
 
         self.UWB_SCALE_TRACK = 1.00
@@ -89,35 +98,48 @@ class FollowController(Node):
 
         self.UWB_SCALE_PASSING = 0.15
 
-        # RECOVER 시작 시
         self.UWB_SCALE_RECOVER_START = 0.15
 
-        # UWB 복귀시간
         self.UWB_RECOVER_TIME = 1.00
 
         # =========================================================
         # Emergency
         # =========================================================
 
+        # Emergency 후 1초 정지
         self.EMERGENCY_STOP_TIME = 1.00
 
+        # 직선 후진 PWM
         self.REVERSE_SPEED = -45.0
 
+        # 후진 시간
         self.REVERSE_TIME = 2.00
 
         # =========================================================
-        # 후방 안전
+        # NEW
+        # Emergency 후 UWB 우선 복귀
         # =========================================================
 
-        # 후방 80cm 확보
+        # 후진이 끝나고 Emergency가 해제된 뒤
+        # 이 시간 동안 LiDAR 일반 steering을 사용하지 않는다.
+        self.POST_REVERSE_UWB_TIME = 1.50
+
+        # 복귀 중 최고 속도
+        self.POST_REVERSE_MAX_SPEED = 35.0
+
+        # 이 시각까지 UWB 우선
+        self.post_reverse_uwb_until = 0.0
+
+        # 현재 post-reverse recovery 중인지
+        self.post_reverse_recovery_active = False
+
+        # =========================================================
+        # Rear safety
+        # =========================================================
+
         self.REAR_SAFE_DISTANCE = 0.80
 
-        # 후진 중 30cm 이하 즉시 정지
         self.REAR_STOP_DISTANCE = 0.30
-
-        # =========================================================
-        # Emergency 재무장
-        # =========================================================
 
         self.EMERGENCY_CLEAR_TIME = 0.30
 
@@ -126,6 +148,7 @@ class FollowController(Node):
         # =========================================================
 
         self.UWB_TIMEOUT = 0.70
+
         self.LIDAR_TIMEOUT = 0.50
 
         # =========================================================
@@ -156,12 +179,18 @@ class FollowController(Node):
 
         self.last_lidar = 0.0
 
-        # 회피 상태
+        # =========================================================
+        # Avoidance state
+        # =========================================================
+
         self.avoidance_state = 'TRACK'
 
         self.previous_avoidance_state = 'TRACK'
 
         self.recover_start_time = 0.0
+
+        # 현재 LiDAR 일반회피 disable 명령 상태
+        self.avoidance_disabled = False
 
         # =========================================================
         # User stop
@@ -171,6 +200,12 @@ class FollowController(Node):
 
         # =========================================================
         # Emergency state
+        #
+        # TRACK
+        # STOP
+        # WAIT_REAR
+        # REVERSE
+        # WAIT_CLEAR
         # =========================================================
 
         self.emergency_state = 'TRACK'
@@ -184,7 +219,7 @@ class FollowController(Node):
         self.emergency_clear_start = None
 
         # =========================================================
-        # Subscribers
+        # UWB subscriptions
         # =========================================================
 
         self.create_subscription(
@@ -207,6 +242,10 @@ class FollowController(Node):
             self.cb_direction,
             10
         )
+
+        # =========================================================
+        # LiDAR subscriptions
+        # =========================================================
 
         self.create_subscription(
             Float32,
@@ -251,7 +290,7 @@ class FollowController(Node):
         )
 
         # =========================================================
-        # Publisher
+        # Publishers
         # =========================================================
 
         self.motor_pub = self.create_publisher(
@@ -260,11 +299,26 @@ class FollowController(Node):
             10
         )
 
-        self.filtered_error_pub = self.create_publisher(
-            Float32,
-            '/uwb/filtered_direction_error',
-            10
+        self.filtered_error_pub = (
+            self.create_publisher(
+                Float32,
+                '/uwb/filtered_direction_error',
+                10
+            )
         )
+
+        # LiDAR 일반 회피 ON/OFF
+        self.avoidance_disable_pub = (
+            self.create_publisher(
+                Bool,
+                '/avoidance/disable',
+                10
+            )
+        )
+
+        # =========================================================
+        # Timer
+        # =========================================================
 
         self.timer = self.create_timer(
             0.05,
@@ -273,11 +327,12 @@ class FollowController(Node):
 
         self.get_logger().info(
             'Follow controller started | '
-            'obstacle passing protection ON'
+            'STOP=130cm | '
+            'POST REVERSE UWB PRIORITY=1.5s'
         )
 
     # =============================================================
-    # Utility
+    # Clamp
     # =============================================================
 
     def clamp(
@@ -296,7 +351,81 @@ class FollowController(Node):
         )
 
     # =============================================================
-    # UWB
+    # LiDAR normal avoidance ON / OFF
+    # =============================================================
+
+    def set_avoidance_disabled(
+        self,
+        disabled
+    ):
+
+        disabled = bool(
+            disabled
+        )
+
+        # 같은 명령을 매 루프 계속 publish하지 않음
+        if (
+            disabled
+            ==
+            self.avoidance_disabled
+        ):
+            return
+
+        self.avoidance_disabled = (
+            disabled
+        )
+
+        msg = Bool()
+
+        msg.data = disabled
+
+        self.avoidance_disable_pub.publish(
+            msg
+        )
+
+        if disabled:
+
+            self.get_logger().warn(
+                'NORMAL LIDAR AVOIDANCE -> DISABLED'
+            )
+
+        else:
+
+            self.get_logger().info(
+                'NORMAL LIDAR AVOIDANCE -> ENABLED'
+            )
+
+    # =============================================================
+    # 과거 steering 완전 초기화
+    # =============================================================
+
+    def clear_old_steering(
+        self
+    ):
+
+        # UWB filter
+        self.uwb_error_buffer.clear()
+
+        self.ema_direction_error = 0.0
+
+        self.filtered_direction_error = 0.0
+
+        # LiDAR cached command
+        self.lidar_steering = 0.0
+
+        self.lidar_threat = 0.0
+
+        # 회피 상태
+        self.avoidance_state = 'TRACK'
+
+        self.previous_avoidance_state = (
+            'TRACK'
+        )
+
+        self.recover_start_time = 0.0
+
+    # =============================================================
+    # UWB error
     # =============================================================
 
     def cb_direction_error(
@@ -304,9 +433,15 @@ class FollowController(Node):
         msg
     ):
 
-        raw = float(msg.data)
+        raw = float(
+            msg.data
+        )
 
         self.raw_direction_error = raw
+
+        # ---------------------------------------------------------
+        # Median
+        # ---------------------------------------------------------
 
         self.uwb_error_buffer.append(
             raw
@@ -315,6 +450,10 @@ class FollowController(Node):
         median_error = statistics.median(
             self.uwb_error_buffer
         )
+
+        # ---------------------------------------------------------
+        # EMA
+        # ---------------------------------------------------------
 
         self.ema_direction_error = (
             self.UWB_ALPHA
@@ -330,6 +469,10 @@ class FollowController(Node):
             self.ema_direction_error
         )
 
+        # ---------------------------------------------------------
+        # Deadband
+        # ---------------------------------------------------------
+
         if (
             abs(
                 self.ema_direction_error
@@ -338,16 +481,20 @@ class FollowController(Node):
             self.UWB_DEADBAND
         ):
 
-            target = 0.0
+            target_error = 0.0
 
         else:
 
-            target = (
+            target_error = (
                 self.ema_direction_error
             )
 
+        # ---------------------------------------------------------
+        # Rate limit
+        # ---------------------------------------------------------
+
         delta = (
-            target
+            target_error
             -
             self.filtered_direction_error
         )
@@ -364,15 +511,23 @@ class FollowController(Node):
 
         self.last_uwb = time.monotonic()
 
-        m = Float32()
+        # ---------------------------------------------------------
+        # Debug
+        # ---------------------------------------------------------
 
-        m.data = float(
+        out = Float32()
+
+        out.data = float(
             self.filtered_direction_error
         )
 
         self.filtered_error_pub.publish(
-            m
+            out
         )
+
+    # =============================================================
+    # UWB distance
+    # =============================================================
 
     def cb_user_distance(
         self,
@@ -385,19 +540,40 @@ class FollowController(Node):
 
         self.last_uwb = time.monotonic()
 
+    # =============================================================
+    # UWB direction
+    # =============================================================
+
     def cb_direction(
         self,
         msg
     ):
 
-        self.direction = str(
+        new_direction = str(
             msg.data
+        )
+
+        # CENTER 진입 시 이전 조향값 제거
+        if (
+            new_direction == 'CENTER'
+            and
+            self.direction != 'CENTER'
+        ):
+
+            self.ema_direction_error = 0.0
+
+            self.filtered_direction_error = 0.0
+
+            self.uwb_error_buffer.clear()
+
+        self.direction = (
+            new_direction
         )
 
         self.last_uwb = time.monotonic()
 
     # =============================================================
-    # LiDAR
+    # LiDAR callbacks
     # =============================================================
 
     def cb_lidar_steering(
@@ -465,7 +641,8 @@ class FollowController(Node):
         )
 
         if (
-            new_state !=
+            new_state
+            !=
             self.avoidance_state
         ):
 
@@ -486,7 +663,7 @@ class FollowController(Node):
         self.last_lidar = time.monotonic()
 
     # =============================================================
-    # Motor
+    # Motor publisher
     # =============================================================
 
     def publish_motor(
@@ -519,7 +696,7 @@ class FollowController(Node):
         )
 
     # =============================================================
-    # Speed
+    # Forward speed
     # =============================================================
 
     def calculate_speed(
@@ -528,9 +705,17 @@ class FollowController(Node):
 
         d = self.user_distance
 
+        # ---------------------------------------------------------
+        # Stop
+        # ---------------------------------------------------------
+
         if d <= self.STOP_DISTANCE:
 
             return 0.0
+
+        # ---------------------------------------------------------
+        # Slow
+        # ---------------------------------------------------------
 
         if d <= self.SLOW_DISTANCE:
 
@@ -555,6 +740,10 @@ class FollowController(Node):
                 *
                 ratio
             )
+
+        # ---------------------------------------------------------
+        # Normal
+        # ---------------------------------------------------------
 
         if d <= self.NORMAL_DISTANCE:
 
@@ -597,13 +786,23 @@ class FollowController(Node):
         now
     ):
 
+        # Post-reverse에서는 LiDAR state 영향 없이
+        # UWB 100% 사용
+        if self.post_reverse_recovery_active:
+
+            return 1.0
+
         if self.avoidance_state == 'AVOID':
 
-            return self.UWB_SCALE_AVOID
+            return (
+                self.UWB_SCALE_AVOID
+            )
 
         if self.avoidance_state == 'PASSING':
 
-            return self.UWB_SCALE_PASSING
+            return (
+                self.UWB_SCALE_PASSING
+            )
 
         if self.avoidance_state == 'RECOVER':
 
@@ -636,7 +835,7 @@ class FollowController(Node):
         return self.UWB_SCALE_TRACK
 
     # =============================================================
-    # UWB turn
+    # UWB steering
     # =============================================================
 
     def calculate_uwb_turn(
@@ -644,12 +843,52 @@ class FollowController(Node):
         now
     ):
 
+        # LOST
+        if self.direction == 'LOST':
+
+            return 0.0
+
+        # CENTER
+        if self.direction == 'CENTER':
+
+            return 0.0
+
+        error = (
+            self.filtered_direction_error
+        )
+
+        # ---------------------------------------------------------
+        # RIGHT인데 과거 음수 error가 남아있다면
+        # 반대조향 금지
+        # ---------------------------------------------------------
+
+        if (
+            self.direction == 'RIGHT'
+            and
+            error <= 0.0
+        ):
+
+            return 0.0
+
+        # ---------------------------------------------------------
+        # LEFT인데 과거 양수 error가 남아있다면
+        # 반대조향 금지
+        # ---------------------------------------------------------
+
+        if (
+            self.direction == 'LEFT'
+            and
+            error >= 0.0
+        ):
+
+            return 0.0
+
         turn = (
             self.UWB_SIGN
             *
             self.K_UWB
             *
-            self.filtered_direction_error
+            error
         )
 
         turn = self.clamp(
@@ -669,7 +908,7 @@ class FollowController(Node):
         )
 
     # =============================================================
-    # Emergency
+    # Emergency start
     # =============================================================
 
     def start_emergency(
@@ -687,6 +926,24 @@ class FollowController(Node):
 
         self.stopped_for_user = False
 
+        # 이전 post-reverse 상태 제거
+        self.post_reverse_recovery_active = (
+            False
+        )
+
+        self.post_reverse_uwb_until = 0.0
+
+        # =========================================================
+        # Emergency 중 일반 LiDAR 회피 중지
+        # Emergency 감지는 lidar_avoidance 안에서 계속 동작
+        # =========================================================
+
+        self.set_avoidance_disabled(
+            True
+        )
+
+        self.clear_old_steering()
+
         self.publish_motor(
             0,
             0
@@ -696,15 +953,23 @@ class FollowController(Node):
             'EMERGENCY | STOP'
         )
 
+    # =============================================================
+    # Emergency stop
+    # =============================================================
+
     def run_emergency_stop(
         self,
         now
     ):
 
-        if (
+        elapsed = (
             now
             -
             self.emergency_start_time
+        )
+
+        if (
+            elapsed
             <
             self.EMERGENCY_STOP_TIME
         ):
@@ -716,15 +981,23 @@ class FollowController(Node):
 
             return
 
+        # ---------------------------------------------------------
+        # 뒤 공간 충분
+        # ---------------------------------------------------------
+
         if (
             self.rear_clearance
             >=
             self.REAR_SAFE_DISTANCE
         ):
 
-            self.emergency_state = 'REVERSE'
+            self.emergency_state = (
+                'REVERSE'
+            )
 
-            self.reverse_start_time = now
+            self.reverse_start_time = (
+                now
+            )
 
             self.publish_motor(
                 self.REVERSE_SPEED,
@@ -732,17 +1005,31 @@ class FollowController(Node):
             )
 
             self.get_logger().warn(
-                f'REVERSE | rear={self.rear_clearance:.2f}'
+                'EMERGENCY | REVERSE'
             )
+
+        # ---------------------------------------------------------
+        # 뒤 공간 부족
+        # ---------------------------------------------------------
 
         else:
 
-            self.emergency_state = 'WAIT_REAR'
+            self.emergency_state = (
+                'WAIT_REAR'
+            )
 
             self.publish_motor(
                 0,
                 0
             )
+
+            self.get_logger().warn(
+                'EMERGENCY | WAIT_REAR'
+            )
+
+    # =============================================================
+    # Wait rear
+    # =============================================================
 
     def run_wait_rear(
         self,
@@ -760,14 +1047,63 @@ class FollowController(Node):
             self.REAR_SAFE_DISTANCE
         ):
 
-            self.emergency_state = 'REVERSE'
+            self.emergency_state = (
+                'REVERSE'
+            )
 
-            self.reverse_start_time = now
+            self.reverse_start_time = (
+                now
+            )
+
+            self.get_logger().warn(
+                'EMERGENCY | REVERSE'
+            )
+
+    # =============================================================
+    # Finish reverse
+    # =============================================================
+
+    def finish_reverse(
+        self
+    ):
+
+        self.publish_motor(
+            0,
+            0
+        )
+
+        self.emergency_state = (
+            'WAIT_CLEAR'
+        )
+
+        self.emergency_clear_start = None
+
+        # =========================================================
+        # 후진 전 모든 방향 기억 제거
+        # =========================================================
+
+        self.clear_old_steering()
+
+        # 아직 일반 LiDAR 회피는 OFF
+        # Emergency False 확인 후 UWB recovery 시작
+
+        self.get_logger().warn(
+            'REVERSE FINISHED | '
+            'waiting emergency clear'
+        )
+
+    # =============================================================
+    # Reverse
+    # =============================================================
 
     def run_reverse(
         self,
         now
     ):
+
+        # ---------------------------------------------------------
+        # 후방 장애물 너무 가까움
+        # ---------------------------------------------------------
 
         if (
             self.rear_clearance
@@ -775,19 +1111,27 @@ class FollowController(Node):
             self.REAR_STOP_DISTANCE
         ):
 
-            self.publish_motor(
-                0,
-                0
-            )
+            self.finish_reverse()
 
-            self.emergency_state = 'WAIT_CLEAR'
+            self.get_logger().warn(
+                'REVERSE STOPPED | '
+                'rear obstacle'
+            )
 
             return
 
-        if (
+        elapsed = (
             now
             -
             self.reverse_start_time
+        )
+
+        # ---------------------------------------------------------
+        # 후진 중
+        # ---------------------------------------------------------
+
+        if (
+            elapsed
             <
             self.REVERSE_TIME
         ):
@@ -799,18 +1143,15 @@ class FollowController(Node):
 
             return
 
-        self.publish_motor(
-            0,
-            0
-        )
+        # ---------------------------------------------------------
+        # 후진 완료
+        # ---------------------------------------------------------
 
-        self.emergency_state = 'WAIT_CLEAR'
+        self.finish_reverse()
 
-        self.uwb_error_buffer.clear()
-
-        self.ema_direction_error = 0.0
-
-        self.filtered_direction_error = 0.0
+    # =============================================================
+    # Wait Emergency clear
+    # =============================================================
 
     def run_wait_clear(
         self,
@@ -822,17 +1163,34 @@ class FollowController(Node):
             0
         )
 
+        # ---------------------------------------------------------
+        # 아직 Emergency
+        # ---------------------------------------------------------
+
         if self.emergency:
 
             self.emergency_clear_start = None
 
             return
 
-        if self.emergency_clear_start is None:
+        # ---------------------------------------------------------
+        # Emergency False 시작
+        # ---------------------------------------------------------
 
-            self.emergency_clear_start = now
+        if (
+            self.emergency_clear_start
+            is None
+        ):
+
+            self.emergency_clear_start = (
+                now
+            )
 
             return
+
+        # ---------------------------------------------------------
+        # 일정시간 False 확인
+        # ---------------------------------------------------------
 
         if (
             now
@@ -844,11 +1202,93 @@ class FollowController(Node):
 
             return
 
+        # =========================================================
+        # Emergency 완전 해제
+        #
+        # 여기서 일반 LiDAR 회피를 바로 켜지 않는다.
+        #
+        # UWB에게 먼저 1.5초 우선권을 줌.
+        # =========================================================
+
+        self.clear_old_steering()
+
         self.emergency_armed = True
 
-        self.emergency_state = 'TRACK'
+        self.emergency_state = (
+            'TRACK'
+        )
 
         self.emergency_clear_start = None
+
+        # UWB recovery 시작
+        self.post_reverse_recovery_active = (
+            True
+        )
+
+        self.post_reverse_uwb_until = (
+            now
+            +
+            self.POST_REVERSE_UWB_TIME
+        )
+
+        # LiDAR 일반 회피는 계속 OFF
+        self.set_avoidance_disabled(
+            True
+        )
+
+        self.get_logger().warn(
+            'EMERGENCY CLEARED | '
+            'POST-REVERSE UWB PRIORITY START | '
+            f'{self.POST_REVERSE_UWB_TIME:.1f}s'
+        )
+
+    # =============================================================
+    # Post reverse recovery update
+    # =============================================================
+
+    def update_post_reverse_recovery(
+        self,
+        now
+    ):
+
+        if not self.post_reverse_recovery_active:
+
+            return False
+
+        # 아직 recovery 시간
+        if (
+            now
+            <
+            self.post_reverse_uwb_until
+        ):
+
+            return True
+
+        # =========================================================
+        # Recovery 완료
+        # =========================================================
+
+        self.post_reverse_recovery_active = (
+            False
+        )
+
+        self.post_reverse_uwb_until = 0.0
+
+        # 과거 command 다시 한번 삭제
+        self.lidar_steering = 0.0
+        self.lidar_threat = 0.0
+
+        # 일반 LiDAR 회피 재활성화
+        self.set_avoidance_disabled(
+            False
+        )
+
+        self.get_logger().info(
+            'POST-REVERSE UWB PRIORITY END | '
+            'normal LiDAR avoidance enabled'
+        )
+
+        return False
 
     # =============================================================
     # Main control
@@ -862,34 +1302,43 @@ class FollowController(Node):
 
         # =========================================================
         # Emergency state machine
+        # 최우선
         # =========================================================
 
         if self.emergency_state == 'STOP':
 
-            self.run_emergency_stop(now)
+            self.run_emergency_stop(
+                now
+            )
 
             return
 
         if self.emergency_state == 'WAIT_REAR':
 
-            self.run_wait_rear(now)
+            self.run_wait_rear(
+                now
+            )
 
             return
 
         if self.emergency_state == 'REVERSE':
 
-            self.run_reverse(now)
+            self.run_reverse(
+                now
+            )
 
             return
 
         if self.emergency_state == 'WAIT_CLEAR':
 
-            self.run_wait_clear(now)
+            self.run_wait_clear(
+                now
+            )
 
             return
 
         # =========================================================
-        # Sensor timeout
+        # LiDAR timeout
         # =========================================================
 
         if (
@@ -907,6 +1356,12 @@ class FollowController(Node):
 
             return
 
+        # =========================================================
+        # Emergency
+        #
+        # Post-reverse recovery 중에도 Emergency는 살아있음.
+        # =========================================================
+
         if (
             self.emergency
             and
@@ -918,6 +1373,20 @@ class FollowController(Node):
             )
 
             return
+
+        # =========================================================
+        # Post reverse recovery 상태 확인
+        # =========================================================
+
+        post_reverse_active = (
+            self.update_post_reverse_recovery(
+                now
+            )
+        )
+
+        # =========================================================
+        # UWB timeout
+        # =========================================================
 
         if (
             now
@@ -934,6 +1403,10 @@ class FollowController(Node):
 
             return
 
+        # =========================================================
+        # LOST
+        # =========================================================
+
         if self.direction == 'LOST':
 
             self.publish_motor(
@@ -942,6 +1415,10 @@ class FollowController(Node):
             )
 
             return
+
+        # =========================================================
+        # 너무 멀면 정지
+        # =========================================================
 
         if (
             self.user_distance
@@ -957,7 +1434,7 @@ class FollowController(Node):
             return
 
         # =========================================================
-        # 사용자 거리
+        # 사용자 거리 stop latch
         # =========================================================
 
         if self.stopped_for_user:
@@ -975,7 +1452,9 @@ class FollowController(Node):
 
                 return
 
-            self.stopped_for_user = False
+            self.stopped_for_user = (
+                False
+            )
 
         else:
 
@@ -985,7 +1464,9 @@ class FollowController(Node):
                 self.STOP_DISTANCE
             ):
 
-                self.stopped_for_user = True
+                self.stopped_for_user = (
+                    True
+                )
 
                 self.publish_motor(
                     0,
@@ -995,37 +1476,67 @@ class FollowController(Node):
                 return
 
         # =========================================================
-        # Speed
+        # Base speed
         # =========================================================
 
-        base_speed = self.calculate_speed()
-
-        # =========================================================
-        # UWB
-        # =========================================================
-
-        uwb_turn = self.calculate_uwb_turn(
-            now
+        base_speed = (
+            self.calculate_speed()
         )
 
         # =========================================================
-        # LiDAR
+        # NEW
+        # 후진 직후 UWB 복귀 중에는 저속
         # =========================================================
 
-        lidar_turn = (
-            self.AVOID_GAIN
-            *
-            self.lidar_steering
-        )
+        if post_reverse_active:
 
-        lidar_turn = self.clamp(
-            lidar_turn,
-            -self.MAX_LIDAR_TURN,
-            self.MAX_LIDAR_TURN
+            base_speed = min(
+                base_speed,
+                self.POST_REVERSE_MAX_SPEED
+            )
+
+        # =========================================================
+        # UWB steering
+        # =========================================================
+
+        uwb_turn = (
+            self.calculate_uwb_turn(
+                now
+            )
         )
 
         # =========================================================
-        # Total
+        # LiDAR steering
+        # =========================================================
+
+        if post_reverse_active:
+
+            # =====================================================
+            # 중요:
+            # Emergency 후 복귀 중에는
+            # 일반 LiDAR LEFT/RIGHT 조향 완전히 무시.
+            #
+            # Emergency 감지는 위에서 계속 사용 중.
+            # =====================================================
+
+            lidar_turn = 0.0
+
+        else:
+
+            lidar_turn = (
+                self.AVOID_GAIN
+                *
+                self.lidar_steering
+            )
+
+            lidar_turn = self.clamp(
+                lidar_turn,
+                -self.MAX_LIDAR_TURN,
+                self.MAX_LIDAR_TURN
+            )
+
+        # =========================================================
+        # Total steering
         # =========================================================
 
         total_turn = (
@@ -1041,14 +1552,23 @@ class FollowController(Node):
         )
 
         # =========================================================
-        # Threat speed reduction
+        # Threat speed scaling
+        #
+        # post-reverse에서는 LiDAR threat도 일반 회피용으로
+        # 적용하지 않는다.
         # =========================================================
 
-        threat = self.clamp(
-            self.lidar_threat,
-            0.0,
-            1.0
-        )
+        if post_reverse_active:
+
+            threat = 0.0
+
+        else:
+
+            threat = self.clamp(
+                self.lidar_threat,
+                0.0,
+                1.0
+            )
 
         speed_scale = (
             1.0
@@ -1064,18 +1584,35 @@ class FollowController(Node):
             1.0
         )
 
-        base_speed *= speed_scale
+        base_speed *= (
+            speed_scale
+        )
 
         # =========================================================
-        # PASSING 중 너무 빨리 지나가지 않게
+        # PASSING slowdown
+        #
+        # post-reverse에서는 PASSING 자체가 disable되어 있으므로
+        # 적용하지 않음
         # =========================================================
 
-        if self.avoidance_state == 'PASSING':
+        if (
+            not post_reverse_active
+            and
+            self.avoidance_state
+            ==
+            'PASSING'
+        ):
 
             base_speed *= 0.82
 
         # =========================================================
-        # Motor differential
+        # Differential drive
+        #
+        # + total_turn = RIGHT
+        #
+        # RIGHT:
+        # left motor faster
+        # right motor slower
         # =========================================================
 
         left = (
@@ -1090,6 +1627,7 @@ class FollowController(Node):
             total_turn
         )
 
+        # 정상주행에서 과도한 역회전 방지
         left = max(
             -20.0,
             left
@@ -1108,13 +1646,17 @@ class FollowController(Node):
 
 def main(args=None):
 
-    rclpy.init(args=args)
+    rclpy.init(
+        args=args
+    )
 
     node = FollowController()
 
     try:
 
-        rclpy.spin(node)
+        rclpy.spin(
+            node
+        )
 
     except KeyboardInterrupt:
 
@@ -1131,6 +1673,11 @@ def main(args=None):
                     0
                 )
 
+                # 종료 시 LiDAR 일반 회피를 정상 상태로 되돌림
+                node.set_avoidance_disabled(
+                    False
+                )
+
         except Exception:
 
             pass
@@ -1138,8 +1685,10 @@ def main(args=None):
         node.destroy_node()
 
         if rclpy.ok():
+
             rclpy.shutdown()
 
 
 if __name__ == '__main__':
+
     main()
