@@ -55,18 +55,15 @@ NFC 인증 기능을 적용하여 등록된 사용자만 카트를 잠금 및 �
 
 ## 시스템 구성
 
-### AI 처리부 — Raspberry Pi 5 (8GB)
+### 센서 처리부 — Raspberry Pi 5 (8GB)
 
 | 기능 |
 |------|
 | LiDAR 데이터 처리 |
-| UWB 거리 기반 사용자 위치 추정 (range-only EKF) |
-| EKF 기반 Sensor Fusion (IMU + Wheel Encoder + UWB) |
+| UWB 거리 기반 사용자 위치 추정 |
 | Navigation2 |
 | 장애물 회피 및 경로 생성 |
 | NFC 인증 처리 |
-
-> Jetson Nano 대신 Raspberry Pi 5를 채택. ROS2 Jazzy(Ubuntu 24.04)를 공식 이미지로 바로 사용할 수 있어 개발환경 구축 리스크가 적고, 카메라 기반 딥러닝 인식을 계획에서 제외했기 때문에 GPU가 없어도 무방함.
 
 ### 제어부 — Arduino
 
@@ -189,4 +186,3 @@ Fusion 360으로 직접 설계 후 3D 프린터로 제작. 모듈형 구조로 �
 - 클라우드 모니터링
 - 다중 사용자 추종
 - 원격 모니터링 시스템
-- iOS 앱 지원 확대
