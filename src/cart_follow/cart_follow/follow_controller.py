@@ -43,9 +43,9 @@ class FollowController(Node):
         # Forward speed
         # =========================================================
 
-        self.SLOW_SPEED = 38.0
-        self.NORMAL_SPEED = 65.0
-        self.MAX_SPEED = 85.0
+        self.SLOW_SPEED = 50.0
+        self.NORMAL_SPEED = 80.0
+        self.MAX_SPEED = 120.0
 
         # =========================================================
         # UWB steering
@@ -123,10 +123,10 @@ class FollowController(Node):
         # 현재 회전의 반대방향으로 damping이 걸림.
         # =========================================================
 
-        self.K_IMU = 18.0
+        self.K_IMU = 8.0
 
         # IMU가 너무 강하게 개입하지 않도록 제한
-        self.MAX_IMU_TURN = 12.0
+        self.MAX_IMU_TURN = 6.0
 
         # 작은 gyro noise 무시
         # imu_node에서도 deadband가 있지만 한번 더 보호
@@ -408,8 +408,8 @@ class FollowController(Node):
 
         self.get_logger().info(
             'Follow controller started | '
-            'STARTUP WAIT ON | '
-            'IMU yaw damping ON | '
+            'OLD BASELINE + MIN PATCH | '
+            'IMU FAIL-SOFT | K_IMU=8 MAX=6 | '
             'STOP=130cm | '
             'POST REVERSE UWB=1.5s'
         )
@@ -1265,6 +1265,34 @@ class FollowController(Node):
             return
 
         # ---------------------------------------------------------
+        # 사용자 정지거리 안으로 들어온 경우에는 후진하지 않는다.
+        #
+        # 예: 로봇이 사용자 앞에서 정지하려는 순간 사람이 LiDAR 앞을
+        # 지나가 emergency가 들어와도, 사용자 근접 정지가 우선이다.
+        # ---------------------------------------------------------
+
+        if self.user_distance < self.RESTART_DISTANCE:
+
+            self.stopped_for_user = True
+            self.emergency_state = 'TRACK'
+            self.emergency_armed = True
+            self.emergency_clear_start = None
+
+            self.set_avoidance_disabled(False)
+            self.clear_old_steering()
+
+            self.publish_motor(
+                0,
+                0
+            )
+
+            self.get_logger().warn(
+                'EMERGENCY REVERSE CANCELLED | USER STOP PRIORITY'
+            )
+
+            return
+
+        # ---------------------------------------------------------
         # 뒤가 안전함
         # ---------------------------------------------------------
 
@@ -1602,23 +1630,10 @@ class FollowController(Node):
             return
 
         # =========================================================
-        # 3. Emergency
-        # =========================================================
-
-        if (
-            self.emergency
-            and
-            self.emergency_armed
-        ):
-
-            self.start_emergency(
-                now
-            )
-
-            return
-
-        # =========================================================
-        # 4. UWB timeout
+        # 3. UWB timeout
+        #
+        # UWB가 stale이면 우선 정지한다. stale 거리값 때문에
+        # 불필요한 emergency reverse가 시작되는 것을 막는다.
         # =========================================================
 
         if (
@@ -1637,29 +1652,15 @@ class FollowController(Node):
             return
 
         # =========================================================
-        # 5. IMU timeout
+        # 4. IMU fail-soft
         #
-        # IMU를 실제 제어에 쓰므로
-        # IMU가 죽으면 정상주행도 정지
+        # IMU가 끊겨도 로봇 전체를 정지시키지 않는다.
+        # calculate_imu_turn()이 stale IMU에서는 0.0을 반환하므로
+        # UWB + LiDAR 제어는 그대로 계속 동작한다.
         # =========================================================
 
-        if (
-            now
-            -
-            self.last_imu
-            >
-            self.IMU_TIMEOUT
-        ):
-
-            self.publish_motor(
-                0,
-                0
-            )
-
-            return
-
         # =========================================================
-        # 6. Startup stabilization
+        # 5. Startup stabilization
         # =========================================================
 
         if not self.startup_check(
@@ -1674,7 +1675,7 @@ class FollowController(Node):
             return
 
         # =========================================================
-        # 7. LOST
+        # 6. LOST
         # =========================================================
 
         if self.direction == 'LOST':
@@ -1687,7 +1688,7 @@ class FollowController(Node):
             return
 
         # =========================================================
-        # 8. 너무 멀면 정지
+        # 7. 너무 멀면 정지
         # =========================================================
 
         if (
@@ -1704,17 +1705,10 @@ class FollowController(Node):
             return
 
         # =========================================================
-        # 9. Post reverse recovery 상태
-        # =========================================================
-
-        post_reverse_active = (
-            self.update_post_reverse_recovery(
-                now
-            )
-        )
-
-        # =========================================================
-        # 10. 사용자 거리 STOP latch
+        # 8. 사용자 거리 STOP latch - Emergency보다 우선
+        #
+        # 사용자가 가까워서 의도적으로 정지한 상태에서는
+        # 전방을 사람이 지나가 LiDAR emergency가 들어와도 후진하지 않는다.
         # =========================================================
 
         if self.stopped_for_user:
@@ -1750,6 +1744,34 @@ class FollowController(Node):
                 )
 
                 return
+
+        # =========================================================
+        # 9. Emergency
+        #
+        # 사용자 근접 정지를 처리한 뒤에만 새 emergency를 시작한다.
+        # =========================================================
+
+        if (
+            self.emergency
+            and
+            self.emergency_armed
+        ):
+
+            self.start_emergency(
+                now
+            )
+
+            return
+
+        # =========================================================
+        # 10. Post reverse recovery 상태
+        # =========================================================
+
+        post_reverse_active = (
+            self.update_post_reverse_recovery(
+                now
+            )
+        )
 
         # =========================================================
         # 11. Base speed

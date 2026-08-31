@@ -1,23 +1,27 @@
 // =============================================================
-// Arduino Uno
-// Dual MD20A
-// 20 kHz PWM
+// Arduino Uno + MD20A x2
 //
 // LEFT MOTOR
-// PWM = D9
+// PWM = D9  (OC1A / Timer1)
 // DIR = D8
 //
 // RIGHT MOTOR
-// PWM = D10
+// PWM = D10 (OC1B / Timer1)
 // DIR = D12
 //
-// LEFT ENCODER
-// A = D2
-// B = D4
+// Raspberry Pi command:
+// -255 ~ +255
 //
-// RIGHT ENCODER
-// A = D3
-// B = D7
+// 예)
+//  100,100
+//  180,80
+// -120,-120
+//
+// PWM frequency = 20 kHz
+// Watchdog = 500 ms
+// Serial baud = 9600
+//
+// Encoder = NOT USED
 // =============================================================
 
 
@@ -30,25 +34,6 @@ const int DIR_L = 8;
 
 const int PWM_R = 10;
 const int DIR_R = 12;
-
-
-// =============================================================
-// Encoder pins
-// =============================================================
-
-const int ENC_L_A = 2;
-const int ENC_L_B = 4;
-
-const int ENC_R_A = 3;
-const int ENC_R_B = 7;
-
-
-// =============================================================
-// Encoder count
-// =============================================================
-
-volatile long encoderLeft = 0;
-volatile long encoderRight = 0;
 
 
 // =============================================================
@@ -68,66 +53,26 @@ const unsigned long COMMAND_TIMEOUT = 500;
 
 
 // =============================================================
-// Encoder send
-// =============================================================
-
-unsigned long lastEncoderSend = 0;
-
-const unsigned long ENCODER_INTERVAL = 200;
-
-
-// =============================================================
-// 20 kHz PWM
+// Timer1 PWM
 //
-// Uno clock = 16 MHz
+// Arduino Uno clock = 16 MHz
 //
-// 16,000,000 / 20,000
-// = 800
+// Fast PWM Mode 14
+// TOP = ICR1
 //
-// TOP = 799
+// PWM frequency:
+//
+// 16,000,000 / (1 × (799 + 1))
+// = 20,000 Hz
+//
+// = 20 kHz
 // =============================================================
 
 const uint16_t PWM_TOP = 799;
 
 
 // =============================================================
-// Encoder ISR
-// =============================================================
-
-void encoderLeftISR()
-{
-    bool a = digitalRead(ENC_L_A);
-    bool b = digitalRead(ENC_L_B);
-
-    if (a == b)
-    {
-        encoderLeft++;
-    }
-    else
-    {
-        encoderLeft--;
-    }
-}
-
-
-void encoderRightISR()
-{
-    bool a = digitalRead(ENC_R_A);
-    bool b = digitalRead(ENC_R_B);
-
-    if (a == b)
-    {
-        encoderRight++;
-    }
-    else
-    {
-        encoderRight--;
-    }
-}
-
-
-// =============================================================
-// Timer1 20kHz setup
+// Timer1 20 kHz setup
 //
 // D9  = OC1A
 // D10 = OC1B
@@ -135,45 +80,69 @@ void encoderRightISR()
 
 void setupMotorPWM20kHz()
 {
+    // PWM pins
     pinMode(PWM_L, OUTPUT);
     pinMode(PWM_R, OUTPUT);
 
+
+    // ---------------------------------------------------------
     // Timer1 reset
+    // ---------------------------------------------------------
+
     TCCR1A = 0;
     TCCR1B = 0;
 
     TCNT1 = 0;
 
-    // =========================================================
+
+    // ---------------------------------------------------------
     // Fast PWM Mode 14
     //
+    // WGM13:WGM10 = 1110
+    //
     // TOP = ICR1
-    // =========================================================
+    // ---------------------------------------------------------
 
-    TCCR1A |= (1 << WGM11);
+    TCCR1A |=
+        (1 << WGM11);
 
     TCCR1B |=
         (1 << WGM13)
         |
         (1 << WGM12);
 
-    // =========================================================
-    // Non-inverting
+
+    // ---------------------------------------------------------
+    // Non-inverting PWM
     //
-    // D9  = OC1A
-    // D10 = OC1B
-    // =========================================================
+    // OC1A = D9
+    // OC1B = D10
+    // ---------------------------------------------------------
 
     TCCR1A |=
         (1 << COM1A1)
         |
         (1 << COM1B1);
 
+
+    // ---------------------------------------------------------
     // TOP
+    // ---------------------------------------------------------
+
     ICR1 = PWM_TOP;
 
+
+    // ---------------------------------------------------------
     // Prescaler = 1
-    TCCR1B |= (1 << CS10);
+    // ---------------------------------------------------------
+
+    TCCR1B |=
+        (1 << CS10);
+
+
+    // ---------------------------------------------------------
+    // Start stopped
+    // ---------------------------------------------------------
 
     OCR1A = 0;
     OCR1B = 0;
@@ -181,7 +150,8 @@ void setupMotorPWM20kHz()
 
 
 // =============================================================
-// 0~255 -> 0~799
+// - PWM command 0 ~ 255
+// - Timer1 compare 0 ~ 799
 // =============================================================
 
 uint16_t pwmToTimerValue(int pwm)
@@ -192,7 +162,8 @@ uint16_t pwmToTimerValue(int pwm)
         255
     );
 
-    unsigned long value =
+
+    unsigned long timerValue =
         (
             (unsigned long)pwm
             *
@@ -201,12 +172,13 @@ uint16_t pwmToTimerValue(int pwm)
         /
         255;
 
-    return (uint16_t)value;
+
+    return (uint16_t)timerValue;
 }
 
 
 // =============================================================
-// Left motor
+// LEFT MOTOR
 // =============================================================
 
 void setLeftMotor(int speed)
@@ -217,34 +189,47 @@ void setLeftMotor(int speed)
         255
     );
 
-    if (speed >= 0)
+
+    if (speed > 0)
     {
+        // Forward
         digitalWrite(
             DIR_L,
             LOW
         );
 
-        OCR1A = pwmToTimerValue(
-            speed
-        );
+
+        OCR1A =
+            pwmToTimerValue(
+                speed
+            );
     }
 
-    else
+    else if (speed < 0)
     {
+        // Reverse
         digitalWrite(
             DIR_L,
             HIGH
         );
 
-        OCR1A = pwmToTimerValue(
-            -speed
-        );
+
+        OCR1A =
+            pwmToTimerValue(
+                -speed
+            );
+    }
+
+    else
+    {
+        // Stop
+        OCR1A = 0;
     }
 }
 
 
 // =============================================================
-// Right motor
+// RIGHT MOTOR
 // =============================================================
 
 void setRightMotor(int speed)
@@ -255,34 +240,47 @@ void setRightMotor(int speed)
         255
     );
 
-    if (speed >= 0)
+
+    if (speed > 0)
     {
+        // Forward
         digitalWrite(
             DIR_R,
             LOW
         );
 
-        OCR1B = pwmToTimerValue(
-            speed
-        );
+
+        OCR1B =
+            pwmToTimerValue(
+                speed
+            );
     }
 
-    else
+    else if (speed < 0)
     {
+        // Reverse
         digitalWrite(
             DIR_R,
             HIGH
         );
 
-        OCR1B = pwmToTimerValue(
-            -speed
-        );
+
+        OCR1B =
+            pwmToTimerValue(
+                -speed
+            );
+    }
+
+    else
+    {
+        // Stop
+        OCR1B = 0;
     }
 }
 
 
 // =============================================================
-// Both motors
+// BOTH MOTORS
 // =============================================================
 
 void setMotors(
@@ -301,13 +299,17 @@ void setMotors(
 
 
 // =============================================================
-// Serial command parser
+// SERIAL COMMAND
 //
-// Pi:
-// 65,65
+// Format:
 //
-// reverse:
-// -45,-45
+// LEFT,RIGHT
+//
+// Example:
+//
+// 120,120
+// 180,80
+// -100,-100
 // =============================================================
 
 void processCommand(
@@ -316,65 +318,87 @@ void processCommand(
 {
     command.trim();
 
+
     int commaIndex =
         command.indexOf(',');
+
 
     if (commaIndex < 0)
     {
         return;
     }
 
-    String leftText =
+
+    int leftSpeed =
         command.substring(
             0,
             commaIndex
-        );
+        ).toInt();
 
-    String rightText =
-        command.substring(
-            commaIndex + 1
-        );
-
-    int leftSpeed =
-        leftText.toInt();
 
     int rightSpeed =
-        rightText.toInt();
+        command.substring(
+            commaIndex + 1
+        ).toInt();
 
-    leftSpeed = constrain(
-        leftSpeed,
-        -255,
-        255
-    );
 
-    rightSpeed = constrain(
-        rightSpeed,
-        -255,
-        255
-    );
+    // ---------------------------------------------------------
+    // Clamp
+    // ---------------------------------------------------------
+
+    leftSpeed =
+        constrain(
+            leftSpeed,
+            -255,
+            255
+        );
+
+
+    rightSpeed =
+        constrain(
+            rightSpeed,
+            -255,
+            255
+        );
+
+
+    // ---------------------------------------------------------
+    // Motor output
+    // ---------------------------------------------------------
 
     setMotors(
         leftSpeed,
         rightSpeed
     );
 
-    lastCommandTime = millis();
+
+    // ---------------------------------------------------------
+    // Watchdog reset
+    // ---------------------------------------------------------
+
+    lastCommandTime =
+        millis();
 }
 
 
 // =============================================================
-// Setup
+// SETUP
 // =============================================================
 
 void setup()
 {
+    // ---------------------------------------------------------
+    // Serial
+    // ---------------------------------------------------------
+
     Serial.begin(
         9600
     );
 
-    // =========================================================
-    // DIR
-    // =========================================================
+
+    // ---------------------------------------------------------
+    // Direction pins
+    // ---------------------------------------------------------
 
     pinMode(
         DIR_L,
@@ -386,6 +410,7 @@ void setup()
         OUTPUT
     );
 
+
     digitalWrite(
         DIR_L,
         LOW
@@ -396,79 +421,46 @@ void setup()
         LOW
     );
 
-    // =========================================================
-    // Encoder
-    // =========================================================
 
-    pinMode(
-        ENC_L_A,
-        INPUT_PULLUP
-    );
-
-    pinMode(
-        ENC_L_B,
-        INPUT_PULLUP
-    );
-
-    pinMode(
-        ENC_R_A,
-        INPUT_PULLUP
-    );
-
-    pinMode(
-        ENC_R_B,
-        INPUT_PULLUP
-    );
-
-    attachInterrupt(
-        digitalPinToInterrupt(
-            ENC_L_A
-        ),
-        encoderLeftISR,
-        CHANGE
-    );
-
-    attachInterrupt(
-        digitalPinToInterrupt(
-            ENC_R_A
-        ),
-        encoderRightISR,
-        CHANGE
-    );
-
-    // =========================================================
-    // 20kHz PWM
-    // =========================================================
+    // ---------------------------------------------------------
+    // 20 kHz PWM
+    // ---------------------------------------------------------
 
     setupMotorPWM20kHz();
 
-    // =========================================================
+
+    // ---------------------------------------------------------
     // Stop
-    // =========================================================
+    // ---------------------------------------------------------
 
     setMotors(
         0,
         0
     );
 
-    lastCommandTime = millis();
 
-    lastEncoderSend = millis();
+    // ---------------------------------------------------------
+    // Watchdog timer
+    // ---------------------------------------------------------
+
+    lastCommandTime =
+        millis();
+
 
     Serial.println(
-        "READY,20KHZ"
+        "READY,20KHZ,NO_ENCODER"
     );
 }
 
 
 // =============================================================
-// Loop
+// LOOP
 // =============================================================
 
 void loop()
 {
     // =========================================================
-    // Pi -> Uno
+    // Pi -> Uno serial
     // =========================================================
 
     while (
@@ -477,7 +469,13 @@ void loop()
         0
     )
     {
-        char c = Serial.read();
+        char c =
+            Serial.read();
+
+
+        // -----------------------------------------------------
+        // Command complete
+        // -----------------------------------------------------
 
         if (c == '\n')
         {
@@ -488,10 +486,17 @@ void loop()
             serialBuffer = "";
         }
 
+
+        // -----------------------------------------------------
+        // Ignore carriage return
+        // -----------------------------------------------------
+
         else if (c != '\r')
         {
             serialBuffer += c;
 
+
+            // 너무 긴 이상 명령 방지
             if (
                 serialBuffer.length()
                 >
@@ -503,14 +508,13 @@ void loop()
         }
     }
 
-    unsigned long now = millis();
 
     // =========================================================
     // Watchdog
     // =========================================================
 
     if (
-        now
+        millis()
         -
         lastCommandTime
         >
@@ -520,47 +524,6 @@ void loop()
         setMotors(
             0,
             0
-        );
-    }
-
-    // =========================================================
-    // Encoder
-    // =========================================================
-
-    if (
-        now
-        -
-        lastEncoderSend
-        >=
-        ENCODER_INTERVAL
-    )
-    {
-        lastEncoderSend = now;
-
-        long leftCopy;
-        long rightCopy;
-
-        noInterrupts();
-
-        leftCopy = encoderLeft;
-        rightCopy = encoderRight;
-
-        interrupts();
-
-        Serial.print(
-            "ENC,"
-        );
-
-        Serial.print(
-            leftCopy
-        );
-
-        Serial.print(
-            ","
-        );
-
-        Serial.println(
-            rightCopy
         );
     }
 }

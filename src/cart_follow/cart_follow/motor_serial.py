@@ -12,6 +12,12 @@ from std_msgs.msg import Bool
 
 
 # =========================================================
+# BASELINE NOTE
+# follow_controller의 38/65/85 계열 값을 그대로 Uno(-255~255)에 보낸다.
+# 이전 잘 되던 주행감 재현을 위해 이 버전에서는 퍼센트 -> 255 재스케일을 하지 않는다.
+# =========================================================
+
+# =========================================================
 # Arduino
 # =========================================================
 
@@ -46,8 +52,6 @@ class MotorSerial(Node):
 
         self.ser.reset_input_buffer()
 
-        self.serial_rx_buffer = ''
-
         # =========================================================
         # Motor
         # =========================================================
@@ -78,14 +82,7 @@ class MotorSerial(Node):
         # HARD STOP
         # =========================================================
 
-        self.hard_stop = False
-
-        # =========================================================
-        # Encoder
-        # =========================================================
-
-        self.encoder_left = 0
-        self.encoder_right = 0
+        self.hard_stop = True
 
         # =========================================================
         # Subscribers
@@ -106,16 +103,6 @@ class MotorSerial(Node):
         )
 
         # =========================================================
-        # Encoder publisher
-        # =========================================================
-
-        self.encoder_pub = self.create_publisher(
-            Int32MultiArray,
-            '/encoder_counts',
-            10
-        )
-
-        # =========================================================
         # 20 Hz
         # =========================================================
 
@@ -126,6 +113,7 @@ class MotorSerial(Node):
 
         self.get_logger().info(
             'Motor serial started | '
+            'HARD STOP DEFAULT ON | '
             'RAMP_STEP=3'
         )
 
@@ -295,150 +283,12 @@ class MotorSerial(Node):
             )
 
     # =============================================================
-    # Serial read
-    # =============================================================
-
-    def read_serial(self):
-
-        try:
-
-            waiting = self.ser.in_waiting
-
-            if waiting <= 0:
-                return
-
-            raw = self.ser.read(
-                waiting
-            )
-
-            text = raw.decode(
-                'utf-8',
-                errors='ignore'
-            )
-
-            self.serial_rx_buffer += text
-
-            if len(self.serial_rx_buffer) > 4096:
-
-                self.serial_rx_buffer = (
-                    self.serial_rx_buffer[-2048:]
-                )
-
-            while '\n' in self.serial_rx_buffer:
-
-                (
-                    line,
-                    self.serial_rx_buffer
-                ) = (
-                    self.serial_rx_buffer.split(
-                        '\n',
-                        1
-                    )
-                )
-
-                line = line.strip()
-
-                if not line:
-                    continue
-
-                self.process_serial_line(
-                    line
-                )
-
-        except serial.SerialException as e:
-
-            self.get_logger().error(
-                f'Serial read error: {e}'
-            )
-
-    # =============================================================
-    # Serial parser
-    # =============================================================
-
-    def process_serial_line(
-        self,
-        line
-    ):
-
-        if line.startswith('ENC,'):
-
-            parts = line.split(',')
-
-            if len(parts) != 3:
-                return
-
-            try:
-
-                left = int(
-                    parts[1]
-                )
-
-                right = int(
-                    parts[2]
-                )
-
-            except ValueError:
-                return
-
-            self.encoder_left = left
-            self.encoder_right = right
-
-            msg = Int32MultiArray()
-
-            msg.data = [
-                self.encoder_left,
-                self.encoder_right
-            ]
-
-            self.encoder_pub.publish(
-                msg
-            )
-
-            return
-
-        if line.startswith('ENCDBG,'):
-
-            parts = line.split(',')
-
-            if len(parts) < 3:
-                return
-
-            try:
-
-                left = int(
-                    parts[1]
-                )
-
-                right = int(
-                    parts[2]
-                )
-
-            except ValueError:
-                return
-
-            self.encoder_left = left
-            self.encoder_right = right
-
-            msg = Int32MultiArray()
-
-            msg.data = [
-                self.encoder_left,
-                self.encoder_right
-            ]
-
-            self.encoder_pub.publish(
-                msg
-            )
-
-    # =============================================================
     # Update
     # =============================================================
 
     def update(self):
 
         now = time.monotonic()
-
-        self.read_serial()
 
         # =========================================================
         # Hard stop
