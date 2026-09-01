@@ -87,12 +87,12 @@ NFC 인증 기능을 적용하여 등록된 사용자만 카트를 잠금 및 �
 ```
 1. 사용자의 NFC 카드 태그 인식 → 카트 활성화
 2. UWB(Stella) → 사용자의 UWB 태그 거리 측정
-3. Raspberry Pi 5 → 로봇 오도메트리(IMU+Encoder) 기반 EKF로 사용자 위치 추정
-4. LiDAR → 장애물 탐지 및 costmap 생성
+3. Raspberry Pi 5 → 로봇 오도메트리(IMU+Encoder) + UWB(Stella) 기반 사용자 위치 추정
+4. LiDAR → 장애물 탐지
 5. cmd_vel → Arduino 전송
-6. Arduino → PID 제어 (엔코더 모터)
+6. Arduino → PID 제어
 7. 카트 → 장애물 회피 + 사용자 추종
-8. 사용 종료 → 사용자의 NFC 카드 태그 인식 → 카트 비활성화
+8. 사용 종료 → 사용자의 NFC 카드 태그 3초간 인식 → 카트 비활성화
 ```
 
 ---
@@ -105,7 +105,7 @@ NFC 인증 기능을 적용하여 등록된 사용자만 카트를 잠금 및 �
 | 미들웨어 | ROS2 Jazzy |
 | 언어 | C++, Python |
 | 개발 도구 | VSCode, GitHub, Fusion 360, KiCad, Arduino IDE|
-| 라이브러리 | ROS2, Navigation2, TF2, Eigen, PCL |
+| 라이브러리 | ROS2 |
 
 ---
 
